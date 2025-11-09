@@ -1,65 +1,66 @@
-import java.util.Arrays;
+import java.util.PriorityQueue;
 
-class Job {
-    String id;
-    int profit;
-    int deadline;
+// Node class for Huffman Tree
+class Node {
+    char ch;
+    int frequency;
+    Node left, right;
 
-    public Job(String id, int profit, int deadline) {
-        this.id = id;
-        this.profit = profit;
-        this.deadline = deadline;
+    Node(char ch, int frequency) {
+        this.ch = ch;
+        this.frequency = frequency;
+        this.left = this.right = null;
     }
 }
 
-public class Assign2 {
+public class HuffmanEncoding {
+
+    // Function to print Huffman Codes by traversing tree
+    public static void printCodes(Node root, String code) {
+        if (root == null) return;
+
+        // If leaf node -> print character and code
+        if (root.left == null && root.right == null && Character.isLetter(root.ch)) {
+            System.out.println(root.ch + " : " + code);
+        }
+
+        // traverse left (add 0) and right (add 1)
+        printCodes(root.left, code + "0");
+        printCodes(root.right, code + "1");
+    }
 
     public static void main(String[] args) {
 
-        // Sample Jobs: {JobID, Profit, Deadline}
-        Job[] jobs = {
-                new Job("J1", 35, 3),
-                new Job("J2", 30, 4),
-                new Job("J3", 25, 4),
-                new Job("J4", 20, 2),
-                new Job("J5", 15, 3),
-                new Job("J6", 12, 1),
-                new Job("J7", 5, 2)
-        };
+        // Sample characters and frequencies
+        char chars[] = { 'A', 'B', 'C', 'D', 'E', 'F' };
+        int freq[] = { 5, 9, 12, 13, 16, 45 };
 
-        // Step 1: Sort jobs by profit in descending order
-        Arrays.sort(jobs, (a, b) -> b.profit - a.profit);
+        // Min-Heap based on frequency
+        PriorityQueue<Node> pq = new PriorityQueue<>((a, b) -> a.frequency - b.frequency);
 
-        // Find maximum deadline
-        int maxDeadline = 0;
-        for (Job job : jobs) {
-            if (job.deadline > maxDeadline)
-                maxDeadline = job.deadline;
+        // Create leaf nodes and add to min-heap
+        for (int i = 0; i < chars.length; i++) {
+            pq.add(new Node(chars[i], freq[i]));
         }
 
-        // Create time slots
-        String[] result = new String[maxDeadline + 1]; // index 1 to maxDeadline
+        // Build Huffman Tree
+        while (pq.size() > 1) {
 
-        int totalProfit = 0;
+            Node left = pq.poll();     // lowest frequency
+            Node right = pq.poll();    // second lowest
 
-        // Step 2: Assign jobs to available slots
-        for (Job job : jobs) {
-            for (int slot = job.deadline; slot > 0; slot--) {
-                if (result[slot] == null) { // slot is free
-                    result[slot] = job.id;
-                    totalProfit += job.profit;
-                    break;
-                }
-            }
+            // create parent node with merged frequency
+            Node newNode = new Node('-', left.frequency + right.frequency);
+            newNode.left = left;
+            newNode.right = right;
+
+            pq.add(newNode);
         }
 
-        // Display scheduled jobs
-        System.out.println("Scheduled Jobs:");
-        for (int i = 1; i < result.length; i++) {
-            if (result[i] != null)
-                System.out.println("Time Slot " + i + " --> " + result[i]);
-        }
+        // Root of Huffman Tree
+        Node root = pq.poll();
 
-        System.out.println("Total Profit = Rs. " + totalProfit);
+        System.out.println("Huffman Codes:");
+        printCodes(root, "");
     }
 }
