@@ -13,7 +13,7 @@ class Node {
     }
 }
 
-public class HuffmanEncoding {
+public class Assign2 {
 
     // Function to print Huffman Codes by traversing tree
     public static void printCodes(Node root, String code) {
